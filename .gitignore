@@ -1,0 +1,6 @@
+#設定ファイルを無視する
+/config.txt
+#pychacheファイルを無視する
+**/__pycache__/**
+#venvファイルを無視する
+venv/**
