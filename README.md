@@ -22,6 +22,8 @@ venvなどの仮想環境下で以下のコマンド入れて、pythonライブ�
 $ pip3 install -r requirements.txt
 ```
 
+Google Cloud Vision APIを使用するためのAPIキーを取得します。[この記事](https://zenn.dev/tmitsuoka0423/articles/get-gcp-api-key)などが参考になります。
+
 ## Usage
 
 ```sh
