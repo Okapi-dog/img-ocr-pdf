@@ -68,9 +68,12 @@ $ python3 gcv2hocr.py test.jpg.json output.hocr
 To create a searchable pdf, use the `hocr2pdf.py`.
 
 
-## Acknowledgments
+## Source codes
+gcv2hocr.py: https://github.com/dinosauria123/gcv2hocr/blob/master/gcv2hocr.py
 
-これからかく
+hocr-pdf.py: slightly modified from https://github.com/tmbdev/hocr-tools/blob/master/hocr-pdf
+
+makepdfGUI.py: slightly modified from https://github.com/dinosauria123/gcv2hocr/blob/master/makepdfGUI.py
 
 ## Licence
 
