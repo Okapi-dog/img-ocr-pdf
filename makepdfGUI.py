@@ -8,7 +8,8 @@ import glob
 import threading
 import sys
 import json
-#以下のファイルは、このファイルと同じディレクトリに置いてください
+import asyncio
+#以下のファイル(gcv.py,gcv2hocr.py,hocr2pdf.py)は、このファイルと同じディレクトリに置いてください
 import gcv
 import gcv2hocr
 import hocr2pdf
@@ -21,10 +22,9 @@ class Application(tk.Frame):
         self.create_widgets()
 
     def create_widgets(self):
-        global var
-        var = tk.StringVar()
-        var.set("Select image directory")
-        self.lbl = tk.Label(root, textvariable=var)
+        self.var = tk.StringVar()
+        self.var.set("Select image directory")
+        self.lbl = tk.Label(root, textvariable=self.var)
         self.lbl.place(x=50, y=10)
 
         self.button = tk.Button(root)
@@ -40,6 +40,9 @@ class Application(tk.Frame):
         self.quit = tk.Button(root, text="Quit")
         self.quit["command"] = self.appQuit
         self.quit.place(x=300, y=50)
+    
+    def set_Text(self, text):
+        self.var.set(text)
 
 
     def thread(self):
@@ -49,6 +52,30 @@ class Application(tk.Frame):
 
     def appQuit(self):
         os.kill(os.getpid(), signal.SIGKILL)
+
+    async def get_hocr(self,fileName, APIKEY):
+        async with self.semaphore:
+            print("google OCR",os.path.basename(fileName))
+            self.set_Text("google OCR "+os.path.basename(fileName))
+            await gcv.aio_detect_text(fileName, APIKEY)
+            
+            print ("Convert ", os.path.basename(fileName) ,"to hocr")
+            self.set_Text("Convert " + os.path.basename(fileName) + " to hocr")
+            hocrFileName = fileName.replace("jpg", "hocr")
+            jsonFileName = fileName.replace("jpg", "jpg.json")
+            instream =open(jsonFileName, 'r', encoding='utf-8' )
+            resp = json.load(instream)
+            resp = resp['responses'][0] if 'responses' in resp and len(resp['responses']) >= 0 and "textAnnotations" in resp['responses'][0] else False
+            page = gcv2hocr.fromResponse(resp)
+            with (open(hocrFileName, 'w', encoding="utf-8")) as outfile:
+                outfile.write(page.render().encode('utf-8') if str == bytes else page.render())
+                outfile.close()
+    
+    async def get_hocrs(self,fileNames, APIKEY, max_concurrency=50):
+        self.semaphore = asyncio.Semaphore(max_concurrency)
+        tasks= [self.get_hocr(fileName, APIKEY) for fileName in fileNames]
+        await asyncio.gather(*tasks)
+
     
     def makepdf(self):
         path = os.path.dirname(__file__)+"/config.txt"
@@ -73,38 +100,24 @@ class Application(tk.Frame):
             files = sorted(glob.glob(dname+"/*jpg"))
         except TypeError:                                  # cancel
             exit(1)
-
-        for name in files:
-            print("google OCR",os.path.basename(name))
-            var.set("google OCR "+os.path.basename(name))
-            gcv.detect_text(name, APIKEY)
- 
-            print ("Convert ", os.path.basename(name) ,"to hocr")
-            var.set("Convert " + os.path.basename(name) + " to hocr")
-            hocrFileName = name.replace("jpg", "hocr")
-            jsonFileName = name.replace("jpg", "jpg.json")
-            instream =open(jsonFileName, 'r', encoding='utf-8' )
-            resp = json.load(instream)
-            resp = resp['responses'][0] if 'responses' in resp and len(resp['responses']) >= 0 and "textAnnotations" in resp['responses'][0] else False
-            page = gcv2hocr.fromResponse(resp)
-            with (open(hocrFileName, 'w', encoding="utf-8")) as outfile:
-                outfile.write(page.render().encode('utf-8') if str == bytes else page.render())
-                outfile.close()
+        
+        asyncio.run(self.get_hocrs(files, APIKEY))
+       
 
         print("Generating out.pdf")
-        var.set("Generating out.pdf")
+        self.set_Text("Generating out.pdf")
         out0 = dname+"/out0.pdf"
         hocr2pdf.export_pdf(dname, 150, out0, IsLimitingSize)
 
         print("Reducing pdf size")
-        var.set ("Reducing pdf size")
+        self.set_Text ("Reducing pdf size")
 
         if disable_gs == "False":
             out = "-sOutputFile=" + dname + "/out.pdf"
             command = ["gs", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.5", "-dPDFSETTINGS=/default", "-dDEVICEWIDTHPOINTS=595", "-dPDFFitPage", "-dNOPAUSE", "-dQUIET", "-dBATCH", "-dAutoRotatePages=/None", out, out0]
             subprocess.check_output(command)    #gsを通すと、なぜか日本語を選択した際に文字化けする。また、shellscriptからの実行ができなくなる。
         print("Done!")
-        var.set("Done!")
+        self.set_Text("Done!")
 
     def create_window(self):
 

@@ -1,5 +1,8 @@
 # img-ocr-pdf
-img-ocr-pdfはJPGイメージの集合から検索可能なPDFを[Google Cloud Vision](https://cloud.google.com/vision)を用いて作成します。このプロジェクトは環境依存をなるべく無くしています。また、[Noto Sans JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP)を埋め込んだりすることで、表現可能な文字を増やしています。さらに、既存のGoogle Cloud Visionを使ったOCRでは、文字の下にアンダーバーのように検索用の文字が埋め込まれていましたが、このプログラムでは元の文字と同等の大きさの文字を埋め込んでいます。
+img-ocr-pdfはJPGイメージの集合から検索可能なPDFを[Google Cloud Vision](https://cloud.google.com/vision)を用いて作成します。
+このプロジェクトは環境依存をなるべく無くしています。
+また、[Noto Sans JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP)を埋め込んだりすることで、表現可能な文字を増やしています。
+さらに、既存のGoogle Cloud Visionを使ったOCRでは、文字の下にアンダーバーのように検索用の文字が埋め込まれていましたが、このプログラムでは元の文字と同等の大きさの文字を埋め込んでいます。
 
 # この下は、編集途中
 <!-- BEGIN-MARKDOWN-TOC -->
@@ -22,6 +25,8 @@ venvなどの仮想環境下で以下のコマンド入れて、pythonライブ�
 $ pip3 install -r requirements.txt
 ```
 
+tkinterライブラリをインストールする。これは、OSによってインストール方法が異なる。
+
 Google Cloud Vision APIを使用するためのAPIキーを取得します。[この記事](https://zenn.dev/tmitsuoka0423/articles/get-gcp-api-key)などが参考になります。
 
 ## Usage
@@ -34,7 +39,7 @@ Set Google API Key via press "Config" button.
 
 Set output pdf file via press "Set pdf file" button.
 
-Select input image file directry via press "Set IMG dir" button.
+Select input image file(__only end up with ".jpg"__) directry via press "Set IMG dir" button.
 
 Wait until "Done" is shown.
 
