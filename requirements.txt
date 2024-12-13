@@ -2,3 +2,5 @@ reportlab>=4.2.0
 lxml>=5.2.1
 python-bidi==0.4.2
 requests>=2.32.3
+aiohttp>=3.11.10
+#tkinter これはOSによってインストール方法が異なるのでここには記載しない(ちなみにmacOSで動いた時はversion 8.6でした)

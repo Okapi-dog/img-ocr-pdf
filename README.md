@@ -2,7 +2,7 @@
 img-ocr-pdfはJPGイメージの集合から検索可能なPDFを[Google Cloud Vision](https://cloud.google.com/vision)を用いて作成します。
 このプロジェクトは環境依存をなるべく無くしています。
 また、[Noto Sans JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP)を埋め込んだりすることで、表現可能な文字を増やしています。
-さらに、既存のGoogle Cloud Visionを使ったOCRでは、文字の下にアンダーバーのように検索用の文字が埋め込まれていましたが、このプログラムでは元の文字と同等の大きさの文字を埋め込んでいます。
+さらに、既存のGoogle Cloud Visionを使ったOCRでは、文字の下にアンダーバーのように検索用の文字が埋め込まれていましたが、このプログラムでは元の文字と同等の大きさの文字を埋め込んでいます。また、並行に処理を実行することで、google vision apiを叩く時間を大幅に短縮しました。
 
 # この下は、編集途中
 <!-- BEGIN-MARKDOWN-TOC -->
