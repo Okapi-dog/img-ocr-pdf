@@ -78,7 +78,7 @@ class Application(tk.Frame):
 
     
     def makepdf(self):
-        path = os.path.dirname(__file__)+"/config.txt"
+        path = os.path.dirname(__file__)+"/OCR_config.txt"
         try:
             with open(path) as f:
                 config = f.read()
@@ -118,9 +118,21 @@ class Application(tk.Frame):
             subprocess.check_output(command)    #gsを通すと、なぜか日本語を選択した際に文字化けする。また、shellscriptからの実行ができなくなる。
         print("Done!")
         self.set_Text("Done!")
+    
 
     def create_window(self):
-
+        path = os.path.dirname(__file__)+"/OCR_config.txt"
+        try:
+            with open(path) as f:
+                config = f.read()
+            config = config.split("\n")
+            APIKEY = config[0]
+            IsLimitingSize = config[1]
+            disable_gs = config[2]
+        except FileNotFoundError:
+            APIKEY = ""
+            IsLimitingSize = True
+            disable_gs = True
         global t, text, check_var, check_var2
         t = tk.Toplevel(self)
         t.geometry("350x150")
@@ -128,6 +140,7 @@ class Application(tk.Frame):
         l = tk.Label(t, text="Set Google API key")
         l.place(x=100, y=5)
         text = tk.Entry(t, width=20)
+        text.insert(0, APIKEY)#前回のAPI設定を表示
         text.place(x=90, y=30)
         check_var = tk.BooleanVar(t)
         check = tk.Checkbutton(
@@ -135,6 +148,7 @@ class Application(tk.Frame):
             text="limit pdf size like A4",
             variable=check_var  #set variable
         )
+        check_var.set(IsLimitingSize) #前回の設定を表示
         check.place(x=90, y=60)  # チェックボックスの位置を指定
         check_var2 = tk.BooleanVar(t)
         check2 = tk.Checkbutton(
@@ -142,6 +156,7 @@ class Application(tk.Frame):
             text="do not run gs",
             variable=check_var2  #set variable
         )
+        check_var2.set(disable_gs) #前回の設定を表示
         check2.place(x=90, y=90)  # 二つ目のチェックボックスの位置を指定
         button3 = tk.Button(t)
         button3.place(x=150, y=120)
@@ -156,7 +171,7 @@ class Application(tk.Frame):
             exit(1)
         IsLimitingSize = str(check_var.get())
         disable_gs = str(check_var2.get())
-        path = os.path.dirname(__file__)+"/config.txt"
+        path = os.path.dirname(__file__)+"/OCR_config.txt"
         with open(path, mode='w') as f:
             f.write(api_key+"\n"+IsLimitingSize+"\n"+disable_gs)
         t.destroy()
