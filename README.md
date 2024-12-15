@@ -62,6 +62,8 @@ $ python3 ScreenShotGUI.py
 
 ### jpgから検索可能なpdfを作る
 
+注意. Google Cloud Vision APIを使用する関係上、課金される可能性があります。詳しくはAPIの料金説明をご確認ください。
+
 1. 以下のコマンドをダウンロードしたディレクトリ内で実行して、アプリを起動します。
 
 ```sh
