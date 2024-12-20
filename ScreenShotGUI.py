@@ -4,10 +4,10 @@ import tkinter as tk
 from tkinter import filedialog,messagebox
 import os, signal
 import threading
-import sys
 import time
 import pyautogui
 import math
+import json
 
 class Application(tk.Frame):
 
@@ -26,7 +26,7 @@ class Application(tk.Frame):
         self.lbl = tk.Label(root, textvariable=self.var)
 
         self.button = tk.Button(root)
-        self.button["text"] = "Set JPG Dir"
+        self.button["text"] = "Start ScreenShot"
         self.button["command"] = self.thread
         self.button.place(x=50, y=70)
 
@@ -53,22 +53,20 @@ class Application(tk.Frame):
 
     
     def ScreenShot(self):
-        path = os.path.dirname(__file__)+"/ScreenShot_config.txt"
+        path = os.path.dirname(__file__)+"/ScreenShot_config.json"
         try:
             with open(path) as f:
                 config = f.read()
+            config = json.loads(config)
         except FileNotFoundError:
-            messagebox.showerror("Error", 'No config file, Input your API key')
+            messagebox.showerror("Error", 'No config file! Please set config')
             self.create_window()
             exit(1)
-        config = config.split("\n")
-        wait_second = config[0]
-        interval_second = config[1]
+        wait_second = config["wait_second"]
+        interval_second = config["interval_second"]
+        img_dir = config["img_dir"]
 
-        try:
-            wait_second = int(wait_second)
-            interval_second = int(interval_second)
-        except ValueError:
+        if not (type(wait_second)==int and type(interval_second)==int):
             messagebox.showerror("Error", "Value error in config") 
         
         try:
@@ -76,44 +74,54 @@ class Application(tk.Frame):
         except ValueError:
             messagebox.showerror("Error", "Value error in number of screenshots") 
         
-        SS_directory = filedialog.askdirectory(initialdir = img_dir)
         time.sleep(wait_second)
         zfill_num = math.floor(math.log10(SS_num))+1
         for i in range(SS_num):
             screenshot = pyautogui.screenshot()
             pyautogui.press('right') #右矢印キーを押して次のページに移動
             screenshot = screenshot.convert('RGB') # jpgに変換するため
-            screenshot.save(SS_directory+"/"+str(i+1).zfill(zfill_num)+".jpg")
+            screenshot.save(img_dir+"/"+str(i+1).zfill(zfill_num)+".jpg")
             time.sleep(interval_second)
         self.set_Text("ScreenShot Done!")
 
     def create_window(self):
-        path = os.path.dirname(__file__)+"/ScreenShot_config.txt"
+        path = os.path.dirname(__file__)+"/ScreenShot_config.json"
         try:
             with open(path) as f:
                 config = f.read()
-            config = config.split("\n")
-            wait_second = config[0]
-            interval_second = config[1]
+            config = json.loads(config)
+            wait_second = config["wait_second"]
+            interval_second = config["interval_second"]
+            img_dir = config["img_dir"]
         except FileNotFoundError:
-            wait_second = "2"
-            interval_second = "1" 
-        global t, text,text2
+            wait_second = 2
+            interval_second = 1
+            img_dir = os.path.dirname(__file__)
+        global t, text,text2,text3
         t = tk.Toplevel(self)
-        t.geometry("350x150")
+        t.geometry("300x250")
         t.wm_title("Screen Shot Config")
         l = tk.Label(t, text="Delay before first screenshot")
-        l.place(x=100, y=5)
+        l.place(x=10, y=0)
         text = tk.Entry(t, width=20)
-        text.insert(0, wait_second)#前回のAPI設定を表示
-        text.place(x=90, y=30)
+        text.insert(0, str(wait_second))#前回のAPI設定を表示
+        text.place(x=10, y=30)
         l2 = tk.Label(t, text="Interval seconds between screenshots")
-        l2.place(x=100, y=50)
+        l2.place(x=10, y=60)
         text2 = tk.Entry(t, width=20)
-        text2.insert(0, interval_second)
-        text2.place(x=90, y=70)
+        text2.insert(0, str(interval_second))
+        text2.place(x=10, y=90)
+        l3 =tk.Label(t, text="Screen Shot image directory")
+        l3.place(x=10, y=120)
+        text3 = tk.Entry(t, width=20)
+        text3.insert(0, img_dir)
+        text3.place(x=10, y=150)
+        button2= tk.Button(t)
+        button2.place(x=10, y=180)
+        button2["text"] = "Set Dir"
+        button2["command"] = self.set_dir
         button3 = tk.Button(t)
-        button3.place(x=150, y=120)
+        button3.place(x=10, y=210)
         button3["text"] = "Save"
         button3["command"] = self.saveconfig
 
@@ -121,25 +129,32 @@ class Application(tk.Frame):
     def saveconfig(self):
         wait_second = text.get()
         interval_second = text2.get()
+        img_dir = text3.get()
         
         if not (wait_second.isdigit() and interval_second.isdigit()):
-            messagebox.showerror("Error", "Value error") 
+            messagebox.showerror("Error", "Value error")
             t.destroy()
             exit(1)
-        path = os.path.dirname(__file__)+"/ScreenShot_config.txt"
+        if not os.path.exists(img_dir):
+            messagebox.showerror("Error", "Directory does not exist")
+            t.destroy()
+            exit(1)
+        path = os.path.dirname(__file__)+"/ScreenShot_config.json"
         with open(path, mode='w') as f:
-            f.write(wait_second+"\n"+interval_second)
+            f.write(json.dumps({"wait_second":int(wait_second), "interval_second":int(interval_second), "img_dir":img_dir}))
         t.destroy()
 
+    def set_dir(self):
+        img_dir = filedialog.askdirectory(initialdir=text3.get())
+        text3.delete( 0, tk.END )
+        text3.insert(0, img_dir)
 
-args = sys.argv
-if len(args) > 1:
-    img_dir = args[1]
-else:
-    img_dir = os.path.dirname(__file__)
+
+
+        
 
 root = tk.Tk()
-root.geometry("700x100")
-root.title("Make pdf")
+root.geometry("500x100")
+root.title("ScreenShot")
 app = Application(master=root)
 app.mainloop()

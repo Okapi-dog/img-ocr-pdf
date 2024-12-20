@@ -1,6 +1,7 @@
 #設定ファイルを無視する
 /OCR_config.txt
 /ScreenShot_config.txt
+/ScreenShot_config.json
 #pychacheファイルを無視する
 **/__pycache__/**
 #venvファイルを無視する
