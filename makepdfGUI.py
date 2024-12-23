@@ -148,7 +148,7 @@ class Application(tk.Frame):
             IsLimitingSize = True
             disable_gs = True
             img_dir = os.path.dirname(__file__)
-            pdf_dir = os.path.dirname(__file__)
+            pdf_dir = os.path.dirname(__file__)+"/out.pdf"
         global t, text, check_var, check_var2,text3,text4
         t = tk.Toplevel(self)
         t.geometry("300x350")
@@ -181,17 +181,17 @@ class Application(tk.Frame):
         text3.place(x=10, y=150)
         button2= tk.Button(t)
         button2.place(x=10, y=180)
-        button2["text"] = "Set IMG Dir"
+        button2["text"] = "Set IMG Directory"
         button2["command"] = self.set_img_dir
 
-        l4 =tk.Label(t, text="output PDF File")
+        l4 =tk.Label(t, text="Output PDF path")
         l4.place(x=10, y=210)
         text4 = tk.Entry(t, width=20)
         text4.insert(0, pdf_dir)
         text4.place(x=10, y=240)
         button4= tk.Button(t)
         button4.place(x=10, y=270)
-        button4["text"] = "Set PDF File"
+        button4["text"] = "Set PDF Filename"
         button4["command"] = self.set_pdf_dir
         button3 = tk.Button(t)
         button3.place(x=10, y=300)
@@ -204,16 +204,16 @@ class Application(tk.Frame):
             messagebox.showerror("Error", "No API KEY") 
             t.destroy()
             exit(1)
-        if not os.path.exists(text3.get()):
+        elif not os.path.exists(text3.get()):
             messagebox.showerror("Error", "IMG Directory does not exist")
             t.destroy()
             exit(1)
-        if not os.path.exists(os.path.dirname(text4.get())):
-            messagebox.showerror("Error", "PDF Directory does not exist")
+        elif not (text4.get().endswith(".pdf")):
+            messagebox.showerror("Error", "PDF file must end with .pdf")
             t.destroy()
             exit(1)
-        if not (text4.get().endswith(".pdf")):
-            messagebox.showerror("Error", "PDF file must end with .pdf")
+        elif not os.path.exists(os.path.dirname(text4.get())):
+            messagebox.showerror("Error", "PDF Directory does not exist")
             t.destroy()
             exit(1)
         IsLimitingSize = str(check_var.get())
