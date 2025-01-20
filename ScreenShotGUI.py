@@ -8,6 +8,7 @@ import time
 import pyautogui
 import math
 import json
+import glob
 
 class Application(tk.Frame):
 
@@ -65,14 +66,19 @@ class Application(tk.Frame):
         wait_second = config["wait_second"]
         interval_second = config["interval_second"]
         img_dir = config["img_dir"]
+        del_directory_files = config["del_directory_files"]
 
         if not (type(wait_second)==int and type(interval_second)==int):
-            messagebox.showerror("Error", "Value error in config") 
+            messagebox.showerror("Error", "Value error in config")
         
         try:
             SS_num = int(self.SS_num.get())
         except ValueError:
-            messagebox.showerror("Error", "Value error in number of screenshots") 
+            messagebox.showerror("Error", "Value error in number of screenshots")
+
+        if del_directory_files:
+            for file in glob.glob(img_dir+"/*"):
+                os.remove(file)
         
         time.sleep(wait_second)
         zfill_num = math.floor(math.log10(SS_num))+1
@@ -93,13 +99,15 @@ class Application(tk.Frame):
             wait_second = config["wait_second"]
             interval_second = config["interval_second"]
             img_dir = config["img_dir"]
+            del_directory_files = config["del_directory_files"]
         except FileNotFoundError:
             wait_second = 2
             interval_second = 1
             img_dir = os.path.dirname(__file__)
-        global t, text,text2,text3
+            del_directory_files = False
+        global t, text,text2,text3,check_var
         t = tk.Toplevel(self)
-        t.geometry("300x250")
+        t.geometry("350x300")
         t.wm_title("Screen Shot Config")
         l = tk.Label(t, text="Delay before first screenshot")
         l.place(x=10, y=0)
@@ -120,16 +128,25 @@ class Application(tk.Frame):
         button2.place(x=10, y=180)
         button2["text"] = "Set Dir"
         button2["command"] = self.set_dir
+        check_var = tk.BooleanVar(t)
+        check = tk.Checkbutton(
+            t,
+            text="clear img directory before screenshot",
+            variable=check_var  #set variable
+        )
+        check_var.set(del_directory_files) #前回の設定を表示
+        check.place(x=10, y=210)  # チェックボックスの位置を指定
         button3 = tk.Button(t)
-        button3.place(x=10, y=210)
         button3["text"] = "Save"
         button3["command"] = self.saveconfig
+        button3.place(x=10, y=240)
 
 
     def saveconfig(self):
         wait_second = text.get()
         interval_second = text2.get()
         img_dir = text3.get()
+        del_directory_files = check_var.get()
         
         if not (wait_second.isdigit() and interval_second.isdigit()):
             messagebox.showerror("Error", "Value error")
@@ -141,7 +158,7 @@ class Application(tk.Frame):
             exit(1)
         path = os.path.dirname(__file__)+"/ScreenShot_config.json"
         with open(path, mode='w') as f:
-            f.write(json.dumps({"wait_second":int(wait_second), "interval_second":int(interval_second), "img_dir":img_dir}))
+            f.write(json.dumps({"wait_second":int(wait_second), "interval_second":int(interval_second), "img_dir":img_dir, "del_directory_files":del_directory_files}))
         t.destroy()
 
     def set_dir(self):
