@@ -65,6 +65,7 @@ class Application(tk.Frame):
             exit(1)
         wait_second = config["wait_second"]
         interval_second = config["interval_second"]
+        nextpage_key = config["nextpage_key"]
         img_dir = config["img_dir"]
         del_directory_files = config["del_directory_files"]
 
@@ -84,7 +85,7 @@ class Application(tk.Frame):
         zfill_num = math.floor(math.log10(SS_num))+1
         for i in range(SS_num):
             screenshot = pyautogui.screenshot()
-            pyautogui.press('right') #右矢印キーを押して次のページに移動
+            pyautogui.press(nextpage_key) #キーを押して次のページに移動
             screenshot = screenshot.convert('RGB') # jpgに変換するため
             screenshot.save(img_dir+"/"+str(i+1).zfill(zfill_num)+".jpg")
             time.sleep(interval_second)
@@ -92,22 +93,24 @@ class Application(tk.Frame):
 
     def create_window(self):
         path = os.path.dirname(__file__)+"/ScreenShot_config.json"
+        global t, text,text2,text3,check_var,key_stringvar
         try:
             with open(path) as f:
                 config = f.read()
             config = json.loads(config)
             wait_second = config["wait_second"]
             interval_second = config["interval_second"]
+            nextpage_key = config["nextpage_key"]
             img_dir = config["img_dir"]
             del_directory_files = config["del_directory_files"]
         except FileNotFoundError:
             wait_second = 2
             interval_second = 1
+            nextpage_key = "right"
             img_dir = os.path.dirname(__file__)
             del_directory_files = False
-        global t, text,text2,text3,check_var
         t = tk.Toplevel(self)
-        t.geometry("350x300")
+        t.geometry("450x450")
         t.wm_title("Screen Shot Config")
         l = tk.Label(t, text="Delay before first screenshot")
         l.place(x=10, y=0)
@@ -119,14 +122,20 @@ class Application(tk.Frame):
         text2 = tk.Entry(t, width=20)
         text2.insert(0, str(interval_second))
         text2.place(x=10, y=90)
+        l_key = tk.Label(t, text="choose key to next page (default: right arrow key)")
+        l_key.place(x=10, y=120)
+        key_stringvar = tk.StringVar(t)
+        key_stringvar.set(nextpage_key)
+        dropdown_key = tk.OptionMenu(t, key_stringvar, "right", "left", "up", "down", "space")
+        dropdown_key.place(x=10, y=150)
         l3 =tk.Label(t, text="Screen Shot image directory")
-        l3.place(x=10, y=120)
+        l3.place(x=10, y=180)
         text3 = tk.Entry(t, width=20)
         text3.insert(0, img_dir)
-        text3.place(x=10, y=150)
+        text3.place(x=10, y=210)
         button2= tk.Button(t)
-        button2.place(x=10, y=180)
-        button2["text"] = "Set Dir"
+        button2.place(x=10, y=240)
+        button2["text"] = "Choose Dir"
         button2["command"] = self.set_dir
         check_var = tk.BooleanVar(t)
         check = tk.Checkbutton(
@@ -135,16 +144,16 @@ class Application(tk.Frame):
             variable=check_var  #set variable
         )
         check_var.set(del_directory_files) #前回の設定を表示
-        check.place(x=10, y=210)  # チェックボックスの位置を指定
+        check.place(x=10, y=270)  # チェックボックスの位置を指定
         button3 = tk.Button(t)
         button3["text"] = "Save"
         button3["command"] = self.saveconfig
-        button3.place(x=10, y=240)
-
+        button3.place(x=10, y=300)
 
     def saveconfig(self):
         wait_second = text.get()
         interval_second = text2.get()
+        nextpage_key = key_stringvar.get()
         img_dir = text3.get()
         del_directory_files = check_var.get()
         
@@ -158,7 +167,7 @@ class Application(tk.Frame):
             exit(1)
         path = os.path.dirname(__file__)+"/ScreenShot_config.json"
         with open(path, mode='w') as f:
-            f.write(json.dumps({"wait_second":int(wait_second), "interval_second":int(interval_second), "img_dir":img_dir, "del_directory_files":del_directory_files}))
+            f.write(json.dumps({"wait_second":int(wait_second), "interval_second":int(interval_second), "nextpage_key":nextpage_key, "img_dir":img_dir, "del_directory_files":del_directory_files}))
         t.destroy()
 
     def set_dir(self):

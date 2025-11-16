@@ -126,7 +126,7 @@ class Application(tk.Frame):
 
         if disable_gs == "False":
             out = "-sOutputFile=" + img_dir + "/out.pdf"
-            command = ["gs", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.5", "-dPDFSETTINGS=/default", "-dDEVICEWIDTHPOINTS=595", "-dPDFFitPage", "-dNOPAUSE", "-dQUIET", "-dBATCH", "-dAutoRotatePages=/None", out, out0]
+            command = ["gs", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.5", "-dPDFSETTINGS=/default", "-dDEVICEWIDTHPOINTS=595", "-dPDFFitPage", "-dNOPAUSE", "-dQUIET", "-dBATCH", "-dAutoRotatePages=/None", out]
             subprocess.check_output(command)    #gsを通すと、なぜか日本語を選択した際に文字化けする。また、shellscriptからの実行ができなくなる。
         print("Done!")
         self.set_Text("Done!")
