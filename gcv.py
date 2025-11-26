@@ -13,7 +13,7 @@ def detect_text(image_path, api_key):
     api_key: Google Cloud Vision APIのAPIキー
   """
 
-  with open(image_path, "rb") as image_file:
+  with open(image_path, "rb", encoding="utf-8") as image_file:
     image_content = base64.b64encode(image_file.read()).decode('utf-8')
 
   request_body = {
@@ -85,7 +85,7 @@ async def aio_detect_text(image_path, api_key):
 
         # レスポンスをJSONファイルに保存
         output_file = image_path + ".json"
-        with open(output_file, "w") as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             json.dump(response_json, f, indent=2, ensure_ascii=False)
 
         print(f"結果は {output_file} に保存されました。")

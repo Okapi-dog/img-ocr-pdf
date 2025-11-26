@@ -148,8 +148,7 @@ def polyval(poly, x):
 # 'Invisible font' is unrestricted freeware. Enjoy, Improve, Distribute freely
 
 def load_jpn_font():
-    font_path = '/Users/hitoshi/Desktop/tech/ocr/gcv2hocr2/Noto_Sans_JP/static/NotoSansJP-Regular.ttf'  
-    font_path = os.path.join(os.path.dirname(__file__), 'Noto_Sans_JP/static/NotoSansJP-Regular.ttf')
+    font_path = os.path.join(os.path.dirname(__file__), "Noto_Sans_JP", "static", "NotoSansJP-Regular.ttf")
     pdfmetrics.registerFont(TTFont('NotoSansJP-Regular', font_path))  # Register the font with ReportLab(any font-name is fine)
 
 def load_jpn_font2():

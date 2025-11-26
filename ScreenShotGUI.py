@@ -9,6 +9,7 @@ import pyautogui
 import math
 import json
 import glob
+import sys
 
 class Application(tk.Frame):
 
@@ -47,16 +48,17 @@ class Application(tk.Frame):
     def thread(self):
         global th
         th = threading.Thread(target=self.ScreenShot)
+        th.daemon = True  #親が死んだら即死する設定
         th.start()
 
     def appQuit(self):
-        os.kill(os.getpid(), signal.SIGKILL)
-
+        self.master.destroy()
+        sys.exit(0)
     
     def ScreenShot(self):
-        path = os.path.dirname(__file__)+"/ScreenShot_config.json"
+        path = os.path.join(os.path.dirname(__file__), "ScreenShot_config.json")
         try:
-            with open(path) as f:
+            with open(path, 'r', encoding='utf-8') as f:
                 config = f.read()
             config = json.loads(config)
         except FileNotFoundError:
@@ -78,7 +80,7 @@ class Application(tk.Frame):
             messagebox.showerror("Error", "Value error in number of screenshots")
 
         if del_directory_files:
-            for file in glob.glob(img_dir+"/*"):
+            for file in glob.glob(os.path.join(img_dir, "*")):
                 os.remove(file)
         
         time.sleep(wait_second)
@@ -87,15 +89,15 @@ class Application(tk.Frame):
             screenshot = pyautogui.screenshot()
             pyautogui.press(nextpage_key) #キーを押して次のページに移動
             screenshot = screenshot.convert('RGB') # jpgに変換するため
-            screenshot.save(img_dir+"/"+str(i+1).zfill(zfill_num)+".jpg")
+            screenshot.save(os.path.join(img_dir, str(i+1).zfill(zfill_num)+".jpg"))
             time.sleep(interval_second)
         self.set_Text("ScreenShot Done!")
 
     def create_window(self):
-        path = os.path.dirname(__file__)+"/ScreenShot_config.json"
+        path = os.path.join(os.path.dirname(__file__), "ScreenShot_config.json")
         global t, text,text2,text3,check_var,key_stringvar
         try:
-            with open(path) as f:
+            with open(path, 'r', encoding='utf-8') as f:
                 config = f.read()
             config = json.loads(config)
             wait_second = config["wait_second"]
@@ -165,8 +167,8 @@ class Application(tk.Frame):
             messagebox.showerror("Error", "Directory does not exist")
             t.destroy()
             exit(1)
-        path = os.path.dirname(__file__)+"/ScreenShot_config.json"
-        with open(path, mode='w') as f:
+        path = os.path.join(os.path.dirname(__file__), "ScreenShot_config.json")
+        with open(path, mode='w', encoding='utf-8') as f:
             f.write(json.dumps({"wait_second":int(wait_second), "interval_second":int(interval_second), "nextpage_key":nextpage_key, "img_dir":img_dir, "del_directory_files":del_directory_files}))
         t.destroy()
 
